@@ -100,7 +100,7 @@ router.get('/:id', verifyToken, getInvoice);
  * /invoices/{id}/pay:
  *   post:
  *     summary: Process payment for an invoice
- *     tags: [Invoices, Payments]
+ *     tags: [Invoices]
  *     security:
  *       - bearerAuth: []
  *     parameters:

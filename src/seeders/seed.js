@@ -1,9 +1,10 @@
 import { sequelize, User, Car, Leasing, Invoice, Payment, Transaction } from '../models/index.js';
 
-const generateInvoiceId = () => {
-    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `INV-${date}-${random}`;
+const generateInvoiceId = async () => {
+    const [[{ nextval }]] = await sequelize.query(
+        `SELECT nextval('invoice_id_seq')`
+    );
+    return `INV${String(nextval).padStart(3, '0')}`;
 };
 
 const seed = async () => {
@@ -16,6 +17,7 @@ const seed = async () => {
             { name: 'Adira Finance', interest_rate: 12.00, term_months: 48 },
             { name: 'Mandiri Tunas Finance', interest_rate: 11.00, term_months: 60 },
             { name: 'Maybank Finance', interest_rate: 11.25, term_months: 48 },
+            { name: 'Clipan Finance', interest_rate: 11, term_months: 48 },
         ];
 
         for (const item of leasingsData) {
@@ -29,7 +31,8 @@ const seed = async () => {
             { brand_name: 'Honda', group_model_name: 'HR-V', model_name: '1.5 SE CVT', year: 2024, price: 416100000 },
             { brand_name: 'Mitsubishi', group_model_name: 'Xpander', model_name: 'Ultimate CVT', year: 2023, price: 312900000 },
             { brand_name: 'Hyundai', group_model_name: 'Stargazer', model_name: 'Prime IVT', year: 2023, price: 311800000 },
-            { brand_name: 'Wuling', group_model_name: 'Air EV', model_name: 'Long Range', year: 2023, price: 299500000 }
+            { brand_name: 'Wuling', group_model_name: 'Air EV', model_name: 'Long Range', year: 2023, price: 299500000 },
+            { brand_name: 'Honda', group_model_name: 'CR-V', model_name: '1.5 Turbo Prestige', year: 2020, price: 300000000 }
         ];
 
         for (const item of carsData) {
@@ -63,7 +66,7 @@ const seed = async () => {
             const totalLoan = principal + interest;
             const monthly = totalLoan / leasing.term_months;
 
-            const invoiceId = generateInvoiceId();
+            const invoiceId = await generateInvoiceId();
             const dueDate = new Date();
             dueDate.setMonth(dueDate.getMonth() + 1);
 

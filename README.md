@@ -231,19 +231,19 @@ curl -X POST http://localhost:3000/api/v1/auth/logout \
 | 1 | Sign Up | Register Bob (name, phone, password) | 201, return user data dengan balance 0 |
 | 2 | Sign Up | Registrasi duplikat phone | 409 Conflict |
 | 3 | Sign Up | Input tidak valid (phone pendek) | 400 + validation errors |
-| 4 | Login | Login Bob dengan kredensial benar | 200, return accessToken + refreshToken |
+| 4 | Login | Login Bob dengan kredensial benar | 200, return accessToken + refreshToken (expiresIn=900) |
 | 5 | Login | Login password salah | 401 |
 | 6 | Login | Login phone tidak terdaftar | 401 |
-| 7 | Login | Refresh token | 200, return token baru |
+| 7 | Login | Refresh token | 200, return token baru (rotasi) |
 | 8 | Login | Refresh token lama (sudah dirotasi) | 401 |
 | 9 | Deposit | Deposit tanpa auth token | 401 |
-| 10 | Deposit | Deposit di bawah minimum (5,000) | 400 + errors |
+| 10 | Deposit | Deposit di bawah minimum (10,000) | 400 + errors |
 | 11 | Deposit | Deposit 10,000,000 | 200, balance = 10,000,000 |
-| 12 | Deposit | Cek saldo setelah deposit | balance = 10,000,000 |
+| 12 | Deposit | Cek saldo setelah deposit | balance = 10,000,000, currency = IDR |
 | 13 | Withdraw | Withdraw melebihi saldo | 400 |
 | 14 | Withdraw | Withdraw 1,000,000 | 200, balance = 9,000,000 |
 | 15 | Withdraw | Cek saldo setelah withdraw | balance = 9,000,000 |
-| 16 | Withdraw | Riwayat transaksi (deposit + withdraw) | 2 transaksi |
+| 16 | Withdraw | Riwayat transaksi (deposit + withdraw) | 2 transaksi, paginasi |
 | 17 | Create Invoice | carId/leasingId tidak valid | 400 |
 | 18 | Create Invoice | Buat invoice Honda CR-V + Clipan Finance, DP 100jt | 201, loanPrincipal=200jt, loanTotal=288jt, monthly=6jt, term=48 |
 | 19 | Get Invoice | Invoice tidak ditemukan | 404 |
@@ -252,10 +252,10 @@ curl -X POST http://localhost:3000/api/v1/auth/logout \
 | 22 | Transfer | Pembayaran melebihi saldo wallet | 400 |
 | 23 | Transfer | Bayar 5jt dari 6jt cicilan (**underpayment**) | 200, term=47, missed=1jt, nextPayment=**7,020,000** (penalti 2%) |
 | 24 | Transfer | Cek saldo setelah transfer | balance = 4,000,000 |
-| 25 | Transfer | Transaksi payment tercatat di history | type=payment, amount=5jt |
+| 25 | Transfer | Transaksi payment tercatat di history | type=payment, amount=5jt, referenceType=invoice |
 | 26 | Get Invoice | Verifikasi invoice setelah underpayment | term=47, totalPaid=5jt, missed=1jt, next=7,020,000 |
 | 27 | Transfer | Deposit tambahan 10jt | balance = 14,000,000 |
-| 28 | Transfer | Bayar penuh 7,020,000 (**full payment**) | 200, term=46, missed=0, nextPayment=6,000,000 (reset) |
+| 28 | Transfer | Bayar penuh 7,020,000 (**full payment**) | 200, term=46, missed=0, nextPayment=6,000,000 (reset), 2 payments |
 | 29 | Transfer | Cek saldo setelah full payment | balance = 6,980,000 |
 | 30 | Logout | Logout tanpa token | 401 |
 | 31 | Logout | Logout Bob | 200, "Thankyou Bob, see you next time" |
